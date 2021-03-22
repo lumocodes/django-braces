@@ -1,12 +1,8 @@
-from __future__ import unicode_literals
-
 import json
 from django.core import serializers
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse, HttpResponseBadRequest
-
-import six
 
 
 class JSONResponseMixin(object):
@@ -21,7 +17,7 @@ class JSONResponseMixin(object):
     def get_content_type(self):
         if (self.content_type is not None and
             not isinstance(self.content_type,
-                           (six.string_types, six.text_type))):
+                           str)):
             raise ImproperlyConfigured(
                 '{0} is missing a content type. Define {0}.content_type, '
                 'or override {0}.get_content_type().'.format(
@@ -56,6 +52,10 @@ class JSONResponseMixin(object):
         return HttpResponse(json_data, content_type=self.get_content_type())
 
 
+def _is_ajax(request):
+    return request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
+
 class AjaxResponseMixin(object):
     """
     Mixin allows you to define alternative methods for ajax requests. Similar
@@ -65,7 +65,7 @@ class AjaxResponseMixin(object):
     def dispatch(self, request, *args, **kwargs):
         request_method = request.method.lower()
 
-        if request.is_ajax() and request_method in self.http_method_names:
+        if _is_ajax(request=request) and request_method in self.http_method_names:
             handler = getattr(self, "{0}_ajax".format(request_method),
                               self.http_method_not_allowed)
             self.request = request

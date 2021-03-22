@@ -1,13 +1,8 @@
-from __future__ import absolute_import
-
 import codecs
 
 from django.contrib.auth.models import User
 from django.http import HttpResponse
-try:
-    from django.utils.translation import gettext_lazy as _
-except ImportError:
-    from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import (View, UpdateView, FormView, TemplateView,
                                   ListView, DetailView, CreateView)
 
@@ -91,7 +86,7 @@ class CustomJsonEncoderView(views.JSONResponseMixin, View):
     json_encoder_class = SetJSONEncoder
 
     def get(self, request):
-        object = {'numbers': set([1, 2, 3])}
+        object = {'numbers': {1, 2, 3}}
         return self.render_json_response(object)
 
 
